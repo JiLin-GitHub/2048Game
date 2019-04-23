@@ -4,13 +4,7 @@ import wx
 import copy
 import random
 
-
-class GameFrame(wx.Frame):
-    def __init__(self, title):
-        self.score = 0
-        self.record = 0
-        self.first_inited = True
-        self.VALUE_COLOR_DEF = {
+VALUE_COLOR_DEF = {
             0: "#CCC0B3",
             2: "#EEE4DA",
             4: "#EEE2D0",
@@ -28,11 +22,17 @@ class GameFrame(wx.Frame):
             16384: "#F0FFF0",
             32768: "#E6E6FA"
         }
+
+class GameFrame(wx.Frame):
+    def __init__(self, title):
+        self.score = 0
+        self.record = 0
+        self.first_inited = True
         self.tile_values = [[0, 0, 0, 0],
                             [0, 0, 0, 0],
                             [0, 0, 0, 0],
                             [0, 0, 0, 0]]
-        self.PANEL_ORIG_POINT = wx.Point(20, 100)
+        self.panel_orig_point = wx.Point(20, 100)
         super().__init__(None, title=title, size=(505, 600), style=wx.DEFAULT_FRAME_STYLE)
         self.addWidgets()
         self.Bind(wx.EVT_PAINT,self.onPaint)
@@ -105,7 +105,7 @@ class GameFrame(wx.Frame):
         dc.Clear()
         dc.SetBrush(wx.Brush("#C0B0A0"))
         dc.SetPen(wx.Pen("", 1, wx.TRANSPARENT))
-        dc.DrawRoundedRectangle(self.PANEL_ORIG_POINT.x, self.PANEL_ORIG_POINT.y, 450, 450, 5)
+        dc.DrawRoundedRectangle(self.panel_orig_point.x, self.panel_orig_point.y, 450, 450, 5)
 
         self.score_text.SetLabel("0")
         self.record_text.SetLabel(str(self.record))
@@ -114,14 +114,14 @@ class GameFrame(wx.Frame):
         dc = wx.ClientDC(self)
         dc.SetBrush(wx.Brush("#C0B0A0"))
         dc.SetPen(wx.Pen("", 1, wx.TRANSPARENT))
-        dc.DrawRoundedRectangle(self.PANEL_ORIG_POINT.x, self.PANEL_ORIG_POINT.y, 450, 450, 5)
+        dc.DrawRoundedRectangle(self.panel_orig_point.x, self.panel_orig_point.y, 450, 450, 5)
         for row in range(4):
             for column in range(4):
                 tile_value = self.tile_values[row][column]
-                tile_color = self.VALUE_COLOR_DEF[tile_value]
+                tile_color = VALUE_COLOR_DEF[tile_value]
                 dc.SetBrush(wx.Brush(tile_color))
-                dc.DrawRoundedRectangle(self.PANEL_ORIG_POINT.x + 110 * column + 10,
-                                        self.PANEL_ORIG_POINT.y + 110 * row + 10, 100, 100, 5)
+                dc.DrawRoundedRectangle(self.panel_orig_point.x + 110 * column + 10,
+                                        self.panel_orig_point.y + 110 * row + 10, 100, 100, 5)
                 dc.SetTextForeground("#707070")
                 text_font = wx.Font(30, wx.SWISS, wx.NORMAL, wx.BOLD, faceName=u"Roboto")
                 dc.SetFont(text_font)
@@ -131,8 +131,8 @@ class GameFrame(wx.Frame):
                         text_font = wx.Font(24, wx.SWISS, wx.NORMAL, wx.BOLD, faceName=u"Roboto")
                         dc.SetFont(text_font)
                         size = dc.GetTextExtent(str(tile_value))
-                    dc.DrawText(str(tile_value), self.PANEL_ORIG_POINT.x + 110 * column + 10 + (100 - size[0]) / 2,
-                                self.PANEL_ORIG_POINT.y + 110 * row + 10 + (100 - size[1]) / 2)
+                    dc.DrawText(str(tile_value), self.panel_orig_point.x + 110 * column + 10 + (100 - size[0]) / 2,
+                                self.panel_orig_point.y + 110 * row + 10 + (100 - size[1]) / 2)
 
     def onKey(self,event):
         key_code = event.GetKeyCode()
@@ -154,9 +154,9 @@ class GameFrame(wx.Frame):
             if self.isGameOver():
                 self.onBtnRestart()
         else:
-            self.drawScore()
             self.addRandomTile()
             self.drawTiles()
+            self.score_text.SetLabel(str(self.score))
 
     def onKeyUp(self):
         temp_tile_values = [[row[i] for row in self.tile_values] for i in range(len(self.tile_values[0]))]
@@ -220,9 +220,6 @@ class GameFrame(wx.Frame):
             return True
         else:
             return False
-
-    def drawScore(self):
-        self.score_text.SetLabel(str(self.score))
 
     def isGameOver(self):
         num_rows = len(self.tile_values)
